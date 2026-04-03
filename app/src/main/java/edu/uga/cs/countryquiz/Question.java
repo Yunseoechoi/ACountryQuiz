@@ -9,14 +9,14 @@ import java.util.List;
  * and 2 incorrect capitals.
  * The answers are randomized for display
  */
-public class Questions {
-    private Countries country;
+public class Question {
+    private Country country;
     private String correctCapital;
     private List<String> answerChoices; // All answer choices
     private String userAnswer;
     private int score; // 0 or 1 pt for each question
 
-    public Questions( Countries country, String correctCapital, String wrongCapital1, String wrongCapital2 ) {
+    public Question(Country country, String correctCapital, String wrongCapital1, String wrongCapital2 ) {
         this.country = country;
         this.correctCapital = correctCapital;
         this.userAnswer = null;
@@ -30,7 +30,7 @@ public class Questions {
         Collections.shuffle(this.answerChoices);
     }
 
-    public Countries getCountry()
+    public Country getCountry()
     {
         return country;
     }
