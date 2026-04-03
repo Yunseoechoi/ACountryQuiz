@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startQuiz() {
         Log.d(TAG, "Start button clicked");
-        Intent intent = new Intent(MainActivity.this, QuizActivity.class);
+        Intent intent = new Intent(MainActivity.this, startQuiz.class);
         startActivity(intent);
     }
 
