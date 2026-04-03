@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private void initalizeDatabase() {
         Log.d(TAG, "Initializing database");
 
-        QuizDBHelper dbHelper = QuizDBHelper.getInstance(this);
+        new DatabaseStart().execute(this);
     }
 
     private void startQuiz() {

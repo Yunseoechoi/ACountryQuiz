@@ -1,6 +1,7 @@
 package edu.uga.cs.countryquiz;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -8,7 +9,6 @@ import android.util.Log;
 /**
  * This is a SQLiteOpenHelper class, which Android uses to create, upgrade, delete an SQLite database
  * in an app.
- *
  * This class is a singleton, following the Singleton Design Pattern.
  * Only one instance of this class will exist.  To make sure, the
  * only constructor is private.
@@ -91,5 +91,13 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         db.execSQL( "drop table if exists " + TABLE_COUNTRIES );
         onCreate( db );
         Log.d( DEBUG_TAG, "Tables are upgraded" );
+    }
+
+    public boolean isCountriesTableEmpty(SQLiteDatabase db) {
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_COUNTRIES, null);
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count == 0;
     }
 }
