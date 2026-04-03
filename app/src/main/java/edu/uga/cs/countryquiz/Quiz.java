@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Quiz {
+public class Quiz{
     private long quizId;
     private List<Question> questions;
     private int currentScore;
@@ -19,6 +19,10 @@ public class Quiz {
         this.questionsAnswered = 0;
         this.quizDate = new Date();
 
+    }
+
+    public void setCurrentScore(int score) {
+        this.currentScore = score;
     }
 
     public Quiz(long quizId, Date quizDate) {

@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void initalizeDatabase() {
         Log.d(TAG, "Initializing database");
-
+        QuizDBHelper dbHelper = QuizDBHelper.getInstance(this);
+        dbHelper.getWritableDatabase();
         new DatabaseStart().execute(this);
     }
 
@@ -48,4 +49,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
         startActivity(intent);
     }
+
 }

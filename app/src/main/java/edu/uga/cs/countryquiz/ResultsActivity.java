@@ -17,19 +17,20 @@ public class ResultsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
 
-        Quiz completedQuiz = (Quiz) getIntent().getSerializableExtra("completedQuiz");
+        int score = getIntent().getIntExtra("score", 0);
+        long dateMillis = getIntent().getLongExtra("date", 0);
 
-        if (completedQuiz != null) {
-            displayQuizResult(completedQuiz);
+        Quiz quiz = new Quiz();
+        quiz.setQuizDate(new java.util.Date(dateMillis));
+        quiz.setCurrentScore(score);
 
-            // pass the LinearLayout where past quizzes will be displayed
-            LinearLayout pastLayout = findViewById(R.id.linear_past_quizzes);
-            loadPastQuizzes(pastLayout);
+        displayQuizResult(quiz);
 
-            saveQuizToDatabase(completedQuiz);
-        } else {
-            Log.e(TAG, "No completed quiz passed to ResultsActivity");
-        }
+        // pass the LinearLayout where past quizzes will be displayed
+        LinearLayout pastLayout = findViewById(R.id.linear_past_quizzes);
+        loadPastQuizzes(pastLayout);
+
+        saveQuizToDatabase(quiz);
     }
 
     private void displayQuizResult(Quiz quiz) {
@@ -84,4 +85,5 @@ public class ResultsActivity extends AppCompatActivity {
             }
         }.execute();
     }
+
 }

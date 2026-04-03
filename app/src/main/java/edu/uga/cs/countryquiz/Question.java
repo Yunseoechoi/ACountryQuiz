@@ -9,7 +9,7 @@ import java.util.List;
  * and 2 incorrect capitals.
  * The answers are randomized for display
  */
-public class Question {
+public class Question{
     private Country country;
     private String correctCapital;
     private List<String> answerChoices; // All answer choices
