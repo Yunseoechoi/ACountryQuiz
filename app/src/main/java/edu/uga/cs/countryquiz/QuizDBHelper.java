@@ -1,10 +1,15 @@
 package edu.uga.cs.countryquiz;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a SQLiteOpenHelper class, which Android uses to create, upgrade, delete an SQLite database
@@ -42,6 +47,8 @@ public class QuizDBHelper extends SQLiteOpenHelper {
                     + COUNTRIES_COLUMN_CONTINENT + " TEXT"
                     + ")";
 
+
+
     public static final String TABLE_QUIZZES = "quizzes";
     public static final String QUIZZES_COLUMN_ID = "_id";
     public static final String QUIZZES_COLUMN_DATE = "date";
@@ -55,7 +62,19 @@ public class QuizDBHelper extends SQLiteOpenHelper {
                     + QUIZZES_COLUMN_SCORE + " INTEGER NOT NULL"
                     + ")";
 
-    // Note that the constructor is private!
+    public static final String TABLE_QUIZ_QUESTIONS = "quiz_questions";
+    private static final String CREATE_QUIZ_QUESTIONS =
+            "create table " + TABLE_QUIZ_QUESTIONS + " ("
+                    + "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "quiz_id INTEGER, "
+                    + "country_name TEXT, "
+                    + "capital TEXT, "
+                    + "continent TEXT, "
+                    + "user_answer TEXT, "
+                    + "is_correct INTEGER, "
+                    + "FOREIGN KEY(quiz_id) REFERENCES quizzes(_id))";
+
+    // Note that the constructor is private
     // So, it can be called only from
     // this class, in the getInstance method.
     private QuizDBHelper( Context context ) {
@@ -80,6 +99,8 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         Log.d( DEBUG_TAG, "Table " + TABLE_COUNTRIES + " created" );
         db.execSQL( CREATE_QUIZZES );
         Log.d( DEBUG_TAG, "Table " + TABLE_QUIZZES + " created" );
+        db.execSQL(CREATE_QUIZ_QUESTIONS);
+        Log.d(DEBUG_TAG, "Table " + TABLE_QUIZ_QUESTIONS + " created");
     }
 
     // We should override onUpgrade method, which will be used to upgrade the database if
@@ -88,6 +109,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
         db.execSQL( "drop table if exists " + TABLE_QUIZZES );
+        db.execSQL("drop table if exists " + TABLE_QUIZ_QUESTIONS);
         db.execSQL( "drop table if exists " + TABLE_COUNTRIES );
         onCreate( db );
         Log.d( DEBUG_TAG, "Tables are upgraded" );
@@ -99,5 +121,64 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         int count = cursor.getInt(0);
         cursor.close();
         return count == 0;
+    }
+
+    // save the quiz and info
+    public void saveQuiz(Quiz quiz) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            ContentValues quizValues = new ContentValues();
+            quizValues.put(QUIZZES_COLUMN_DATE, String.valueOf(quiz.getQuizDate().getTime()));
+            quizValues.put(QUIZZES_COLUMN_SCORE, quiz.getCurrentScore());
+
+            long quizId = db.insert(TABLE_QUIZZES, null, quizValues);
+            quiz.setQuizId(quizId);
+
+            for (Question q : quiz.getQuestions()) {
+                ContentValues questionValues = new ContentValues();
+                questionValues.put("quiz_id", quizId);
+                questionValues.put("country_name", q.getCountryName());
+                questionValues.put("capital", q.getCorrectCapital());
+                questionValues.put("continent", q.getCountry().getContinent());
+                questionValues.put("user_answer", q.getUserAnswer());
+                questionValues.put("is_correct", q.isAnswerCorrect() ? 1 : 0);
+
+                db.insert(TABLE_QUIZ_QUESTIONS, null, questionValues);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    // grab all the past data
+    public List<Quiz> getAllQuizzes() {
+        List<Quiz> quizzes = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT _id, date, score FROM " + TABLE_QUIZZES + " ORDER BY date DESC", null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                long id = cursor.getLong(0);
+                Date date = new Date(cursor.getLong(1));
+                int score = cursor.getInt(2);
+
+                Quiz quiz = new Quiz(id, date);
+                // keep score saved
+                try {
+                    java.lang.reflect.Field f = Quiz.class.getDeclaredField("currentScore");
+                    f.setAccessible(true);
+                    f.setInt(quiz, score);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                quizzes.add(quiz);
+            }
+            cursor.close();
+        }
+        return quizzes;
     }
 }

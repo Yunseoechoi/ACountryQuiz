@@ -60,6 +60,18 @@ public class Question {
         return score;
     }
 
+    public String getCapital() {
+        return country.getCapital();
+    }
+
+    public String getContinent() {
+        return country.getContinent();
+    }
+
+    public boolean isCorrect() {
+        return isAnswerCorrect();
+    }
+
     // get the userAnswer
     public void setUserAnswer(String userAnswer) {
         this.userAnswer = userAnswer;

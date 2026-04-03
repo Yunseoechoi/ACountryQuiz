@@ -1,4 +1,87 @@
 package edu.uga.cs.countryquiz;
 
-public class ResultsActivity {
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.List;
+
+public class ResultsActivity extends AppCompatActivity {
+
+    private static final String TAG = "ResultsActivity";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_results);
+
+        Quiz completedQuiz = (Quiz) getIntent().getSerializableExtra("completedQuiz");
+
+        if (completedQuiz != null) {
+            displayQuizResult(completedQuiz);
+
+            // pass the LinearLayout where past quizzes will be displayed
+            LinearLayout pastLayout = findViewById(R.id.linear_past_quizzes);
+            loadPastQuizzes(pastLayout);
+
+            saveQuizToDatabase(completedQuiz);
+        } else {
+            Log.e(TAG, "No completed quiz passed to ResultsActivity");
+        }
+    }
+
+    private void displayQuizResult(Quiz quiz) {
+        TextView scoreView = findViewById(R.id.text_score);
+        TextView dateView = findViewById(R.id.text_date);
+
+        scoreView.setText("Score: " + quiz.getCurrentScore() + "/" + quiz.getNumberOfQuestions());
+        dateView.setText("Date: " + quiz.getQuizDate().toString());
+
+        Log.d(TAG, "Displayed quiz results: " + quiz);
+    }
+
+    private void saveQuizToDatabase(Quiz quiz) {
+        Context context = this;
+
+        new ImportAsync<Quiz, Void>() {
+            @Override
+            protected Void doInBackground(Quiz... quizzes) {
+                Quiz q = quizzes[0];
+                QuizDBHelper dbHelper = QuizDBHelper.getInstance(context);
+                dbHelper.saveQuiz(q);
+                Log.d(TAG, "Quiz saved to database: " + q);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                Log.d(TAG, "Quiz saving complete");
+            }
+        }.execute(quiz);
+    }
+
+    // showing past results for player
+    private void loadPastQuizzes(LinearLayout layout) {
+        Context context = this;
+
+        new ImportAsync<Void, List<Quiz>>() {
+            @Override
+            protected List<Quiz> doInBackground(Void... voids) {
+                QuizDBHelper dbHelper = QuizDBHelper.getInstance(context);
+                return dbHelper.getAllQuizzes();
+            }
+
+            @Override
+            protected void onPostExecute(List<Quiz> quizzes) {
+                layout.removeAllViews(); // clear previous entries
+                for (Quiz q : quizzes) {
+                    TextView tv = new TextView(context);
+                    tv.setText("Date: " + q.getQuizDate() + " | Score: " + q.getCurrentScore() + "/" + q.getNumberOfQuestions());
+                    layout.addView(tv);
+                }
+            }
+        }.execute();
+    }
 }
