@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Quiz {
-    private int quizId;
+    private long quizId;
     private List<Question> questions;
     private int currentScore;
     private int questionsAnswered;
@@ -21,7 +21,7 @@ public class Quiz {
 
     }
 
-    public Quiz(int quizId, Date quizDate) {
+    public Quiz(long quizId, Date quizDate) {
         this.quizId = quizId;
         this.questions = new ArrayList<>();
         this.currentScore = 0;
@@ -29,11 +29,11 @@ public class Quiz {
         this.quizDate = quizDate;
     }
 
-    public int getQuizId() {
+    public long getQuizId() {
         return quizId;
     }
 
-    public void setQuizId(int quizId) {
+    public void setQuizId(long quizId) {
         this.quizId = quizId;
     }
     public List<Question> getQuestions() {
