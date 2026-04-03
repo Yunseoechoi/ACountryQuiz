@@ -29,11 +29,15 @@ public class DatabaseStart extends ImportAsync<Context, Void> {
                 String line;
 
                 while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(",");
+                    String[] parts = line.split(",", 4);
 
-                    String name = parts[0];
-                    String capital = parts[1];
-                    String continent = parts[2];
+                    String name = parts[0].trim();
+                    String capital = parts[1].trim();
+                    String continent = parts[2].trim();
+
+                    if (capital.startsWith("\"") && capital.endsWith("\"")) {
+                        capital = capital.substring(1, capital.length() - 1);
+                    }
 
                     db.execSQL("INSERT INTO countries (name, capital, continent) VALUES (?, ?, ?)",
                             new Object[]{name, capital, continent});
