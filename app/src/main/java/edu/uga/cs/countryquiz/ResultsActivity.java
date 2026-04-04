@@ -73,7 +73,7 @@ public class ResultsActivity extends AppCompatActivity {
                 QuizDBHelper dbHelper = QuizDBHelper.getInstance(context);
                 return dbHelper.getAllQuizzes();
             }
-
+            // please help im lost
             @Override
             protected void onPostExecute(List<Quiz> quizzes) {
                 layout.removeAllViews(); // clear previous entries
