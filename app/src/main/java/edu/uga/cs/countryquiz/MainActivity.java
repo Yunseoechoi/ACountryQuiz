@@ -27,11 +27,16 @@ public class MainActivity extends AppCompatActivity {
         startQuizButton = findViewById(R.id.button);
         viewResultsButton = findViewById(R.id.button2);
 
-        startQuizButton.setEnabled(true);
-        startQuizButton.setOnClickListener(v -> {
-            if (dbReady) StartQuiz();
-            else Log.w(TAG, "Database not ready yet!");
-        });
+        startQuizButton.setEnabled(false);
+        new DatabaseStart() {
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                dbReady = true;
+                startQuizButton.setEnabled(true); // enable after DB ready--please work
+                Log.d(TAG, "Database ready");
+            }
+        }.execute(this);
 
         viewResultsButton.setOnClickListener(v -> viewResults());
 
