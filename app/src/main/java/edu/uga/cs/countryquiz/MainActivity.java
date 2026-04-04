@@ -41,8 +41,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeDatabase() {
         Log.d(TAG, "Initializing database");
-        QuizDBHelper dbHelper = QuizDBHelper.getInstance(this);
-        dbHelper.getWritableDatabase();
+        new DatabaseStart() {
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                dbReady = true;  // now database is ready
+                Log.d(TAG, "Database ready");
+            }
+        }.execute(this);
 
     }
 
