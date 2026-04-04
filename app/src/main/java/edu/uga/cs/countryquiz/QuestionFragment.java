@@ -53,6 +53,14 @@ public class QuestionFragment extends Fragment {
             String answer = selected.getText().toString();
 
             q.setUserAnswer(answer);
+
+            // recalculate score every time an answer is selected
+            int score = 0;
+            for (Question i : quiz.getQuestions()) {
+                if (i.isAnswerCorrect())
+                    score++;
+            }
+            quiz.setCurrentScore(score);
         });
 
         return view;

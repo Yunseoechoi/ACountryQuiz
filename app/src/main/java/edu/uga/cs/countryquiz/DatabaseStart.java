@@ -27,6 +27,7 @@ public class DatabaseStart extends ImportAsync<Context, Void> {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
                 String line;
+                reader.readLine(); // skip header row
 
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split(",", 4);
