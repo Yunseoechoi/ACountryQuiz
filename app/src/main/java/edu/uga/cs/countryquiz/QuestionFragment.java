@@ -9,12 +9,11 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 public class QuestionFragment extends Fragment {
 
     private static final String ARG_INDEX = "index";
-    private Quiz quiz;
-
     public static QuestionFragment newInstance(int index) {
         QuestionFragment fragment = new QuestionFragment();
         Bundle args = new Bundle();
@@ -23,16 +22,11 @@ public class QuestionFragment extends Fragment {
         return fragment;
     }
 
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.activity_quiz, container, false);
-
+        Quiz quiz = new ViewModelProvider(requireActivity()).get(QuizViewModel.class).quiz;
         int index = getArguments().getInt(ARG_INDEX);
         Question q = quiz.getQuestions().get(index);
 
@@ -48,11 +42,25 @@ public class QuestionFragment extends Fragment {
         c2.setText(q.getAnswerChoice(1));
         c3.setText(q.getAnswerChoice(2));
 
+        if (q.getUserAnswer() != null) {
+            if (q.getUserAnswer().equals(c1.getText().toString())) c1.setChecked(true);
+            else if (q.getUserAnswer().equals(c2.getText().toString())) c2.setChecked(true);
+            else if (q.getUserAnswer().equals(c3.getText().toString())) c3.setChecked(true);
+        }
+
         rg.setOnCheckedChangeListener((group, checkedId) -> {
             RadioButton selected = view.findViewById(checkedId);
             String answer = selected.getText().toString();
 
             q.setUserAnswer(answer);
+
+            // recalculate score every time an answer is selected
+            int score = 0;
+            for (Question i : quiz.getQuestions()) {
+                if (i.isAnswerCorrect())
+                    score++;
+            }
+            quiz.setCurrentScore(score);
         });
 
         return view;

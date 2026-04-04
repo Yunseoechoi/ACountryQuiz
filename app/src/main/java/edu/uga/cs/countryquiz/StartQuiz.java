@@ -23,6 +23,8 @@ public class StartQuiz extends AppCompatActivity {
     private Quiz quiz;
     private ViewPager2 viewPager;
     private Button btnSubmit;
+    private boolean resultsSent = false;
+    private int lastPosition = 0;
 
 
     // testing it out
@@ -31,7 +33,6 @@ public class StartQuiz extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_pager);
 
-        btnSubmit = findViewById(R.id.btnSubmit);
         countriesData = new CountriesData(this);
         countriesData.open();
 
@@ -52,34 +53,41 @@ public class StartQuiz extends AppCompatActivity {
 
         viewPager = findViewById(R.id.viewPager);
 
-        if (savedInstanceState != null) {
-            int index = savedInstanceState.getInt("currentIndex");
-            int score = savedInstanceState.getInt("score");
-
-            quiz.setCurrentScore(score);
-
-            viewPager.setCurrentItem(index);
-        }
-
         QuizPagerAdapter adapter = new QuizPagerAdapter(this, quiz);
         viewPager.setAdapter(adapter);
+
+        if (savedInstanceState != null) {
+            int index = savedInstanceState.getInt("currentIndex");
+            viewPager.setCurrentItem(index, false);
+            lastPosition = index;
+        }
 
         // detect last swipe
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                if (position == quiz.getNumberOfQuestions() - 1) {
-                    btnSubmit.setVisibility(View.VISIBLE);
-                } else {
-                    btnSubmit.setVisibility(View.GONE);
+                lastPosition = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // Detect when the user tries to swipe right from the last page
+                // When on the last page and scroll settles back (over-scroll attempt),
+                // we go to results
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING
+                        && lastPosition == quiz.getNumberOfQuestions() - 1) {
+                    // user started a drag on last page — flag it
+                }
+                if (state == ViewPager2.SCROLL_STATE_SETTLING
+                        && lastPosition == quiz.getNumberOfQuestions() - 1
+                        && !resultsSent) {
+                    resultsSent = true;
+                    calculateScore();
+                    goToResults();
                 }
             }
         });
 
-        btnSubmit.setOnClickListener(v -> {
-            calculateScore();
-            goToResults();
-        });
     }
 
     private void calculateScore() {
@@ -150,8 +158,6 @@ public class StartQuiz extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
         outState.putInt("currentIndex", viewPager.getCurrentItem());
-        outState.putInt("score", quiz.getCurrentScore());
     }
 }
