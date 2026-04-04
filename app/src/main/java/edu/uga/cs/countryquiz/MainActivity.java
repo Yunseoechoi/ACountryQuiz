@@ -53,10 +53,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
 
     }
-
     private void viewResults() {
-        Log.d(TAG, "View results button clicked");
-        Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
+        Intent intent = new Intent(MainActivity.this, PastResultsActivity.class);
         startActivity(intent);
     }
 

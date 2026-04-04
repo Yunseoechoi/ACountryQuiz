@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ public class StartQuiz extends AppCompatActivity {
     private CountriesData countriesData;
     private Quiz quiz;
     private ViewPager2 viewPager;
+    private Button btnSubmit;
 
 
     // testing it out
@@ -28,6 +31,7 @@ public class StartQuiz extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_pager);
 
+        btnSubmit = findViewById(R.id.btnSubmit);
         countriesData = new CountriesData(this);
         countriesData.open();
 
@@ -38,7 +42,11 @@ public class StartQuiz extends AppCompatActivity {
             return;
         }
 
-        quiz = makeQuiz(allCountries);
+        QuizViewModel vm = new ViewModelProvider(this).get(QuizViewModel.class);
+        if (vm.quiz == null) {
+            vm.quiz = makeQuiz(allCountries); // only build once
+        }
+        quiz = vm.quiz;
 
         countriesData.close();
 
@@ -61,10 +69,16 @@ public class StartQuiz extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 if (position == quiz.getNumberOfQuestions() - 1) {
-                    calculateScore();
-                    goToResults();
+                    btnSubmit.setVisibility(View.VISIBLE);
+                } else {
+                    btnSubmit.setVisibility(View.GONE);
                 }
             }
+        });
+
+        btnSubmit.setOnClickListener(v -> {
+            calculateScore();
+            goToResults();
         });
     }
 

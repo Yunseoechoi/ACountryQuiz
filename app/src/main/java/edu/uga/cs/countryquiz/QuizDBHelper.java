@@ -141,38 +141,4 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         }
         return quizzes;
     }
-
-    public void populateCountries(Context context) {
-        SQLiteDatabase db = getWritableDatabase();
-
-        if (!isCountriesTableEmpty(db)) {
-            Log.d(DEBUG_TAG, "Countries table already populated");
-            return;
-        }
-
-        try {
-            InputStream is = context.getAssets().open("countries_data.csv");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-            String line;
-            reader.readLine(); // skip header
-
-            while ((line = reader.readLine()) != null) {
-                String[] tokens = line.split(",");
-
-                ContentValues values = new ContentValues();
-                values.put(COUNTRIES_COLUMN_NAME, tokens[0]);
-                values.put(COUNTRIES_COLUMN_CAPITAL, tokens[1]);
-                values.put(COUNTRIES_COLUMN_CONTINENT, tokens[2]);
-
-                db.insert(TABLE_COUNTRIES, null, values);
-            }
-
-            reader.close();
-            Log.d(DEBUG_TAG, "Countries populated");
-
-        } catch (Exception e) {
-            Log.e(DEBUG_TAG, "Error loading CSV", e);
-        }
-    }
 }

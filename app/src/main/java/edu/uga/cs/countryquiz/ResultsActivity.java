@@ -63,28 +63,4 @@ public class ResultsActivity extends AppCompatActivity {
         }.execute(quiz);
     }
 
-    // showing past results for player
-    private void loadPastQuizzes(LinearLayout layout) {
-        Context context = this;
-
-        new ImportAsync<Void, List<Quiz>>() {
-            @Override
-            protected List<Quiz> doInBackground(Void... voids) {
-                QuizDBHelper dbHelper = QuizDBHelper.getInstance(context);
-                return dbHelper.getAllQuizzes();
-            }
-            // please help im lost
-            @Override
-            protected void onPostExecute(List<Quiz> quizzes) {
-                layout.removeAllViews(); // clear previous entries
-                // emily tip -> if (layout != null && layout.getContext() != null)
-                for (Quiz q : quizzes) {
-                    TextView tv = new TextView(context);
-                    tv.setText("Date: " + q.getQuizDate() + " | Score: " + q.getCurrentScore() + "/" + q.getNumberOfQuestions());
-                    layout.addView(tv);
-                }
-            }
-        }.execute();
-    }
-
 }
