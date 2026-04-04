@@ -28,8 +28,6 @@ public class ResultsActivity extends AppCompatActivity {
 
         // pass the LinearLayout where past quizzes will be displayed
         LinearLayout pastLayout = findViewById(R.id.linear_past_quizzes);
-        loadPastQuizzes(pastLayout);
-
         saveQuizToDatabase(quiz);
     }
 
@@ -49,17 +47,10 @@ public class ResultsActivity extends AppCompatActivity {
         new ImportAsync<Quiz, Void>() {
             @Override
             protected Void doInBackground(Quiz... quizzes) {
-                Quiz q = quizzes[0];
-                QuizDBHelper dbHelper = QuizDBHelper.getInstance(context);
-                dbHelper.saveQuiz(q);
-                Log.d(TAG, "Quiz saved to database: " + q);
+                QuizDBHelper.getInstance(context).saveQuiz(quizzes[0]);
                 return null;
             }
 
-            @Override
-            protected void onPostExecute(Void result) {
-                Log.d(TAG, "Quiz saving complete");
-            }
         }.execute(quiz);
     }
 
