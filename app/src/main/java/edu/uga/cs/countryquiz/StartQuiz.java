@@ -3,6 +3,7 @@ package edu.uga.cs.countryquiz;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class startQuiz extends AppCompatActivity {
+public class StartQuiz extends AppCompatActivity {
     private CountriesData countriesData;
     private Quiz quiz;
     private ViewPager2 viewPager;
@@ -31,6 +32,12 @@ public class startQuiz extends AppCompatActivity {
         countriesData.open();
 
         List<Country> allCountries = countriesData.retrieveAllCountries();
+        if (allCountries.size() < 6) {
+            Log.e("StartQuiz", "Not enough countries loaded! Check CSV and database.");
+            finish();
+            return;
+        }
+
         quiz = makeQuiz(allCountries);
 
         countriesData.close();

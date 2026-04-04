@@ -23,7 +23,7 @@ public class DatabaseStart extends ImportAsync<Context, Void> {
             Log.d(TAG, "Loading CSV into database...");
 
             try {
-                InputStream is = context.getAssets().open("countries.csv");
+                InputStream is = context.getAssets().open("countries_data.csv");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
                 String line;

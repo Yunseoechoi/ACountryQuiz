@@ -14,6 +14,9 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
 
     final String TAG = "Main Activity";
+    private Button startQuizButton;
+    private Button viewResultsButton;
+    private boolean dbReady = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,27 +24,33 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Log.d(TAG, "MainActivity Created");
+        startQuizButton = findViewById(R.id.button);
+        viewResultsButton = findViewById(R.id.button2);
 
-        initalizeDatabase();
+        startQuizButton.setEnabled(true);
+        startQuizButton.setOnClickListener(v -> {
+            if (dbReady) StartQuiz();
+            else Log.w(TAG, "Database not ready yet!");
+        });
 
-        Button startQuizButton = findViewById(R.id.button);
-        Button viewResultsButton = findViewById(R.id.button2);
-
-        startQuizButton.setOnClickListener(v -> startQuiz());
         viewResultsButton.setOnClickListener(v -> viewResults());
+
+
+        initializeDatabase();
     }
 
-    private void initalizeDatabase() {
+    private void initializeDatabase() {
         Log.d(TAG, "Initializing database");
         QuizDBHelper dbHelper = QuizDBHelper.getInstance(this);
         dbHelper.getWritableDatabase();
-        new DatabaseStart().execute(this);
+
     }
 
-    private void startQuiz() {
+    private void StartQuiz() {
         Log.d(TAG, "Start button clicked");
-        Intent intent = new Intent(MainActivity.this, startQuiz.class);
+        Intent intent = new Intent(MainActivity.this, StartQuiz.class);
         startActivity(intent);
+
     }
 
     private void viewResults() {
