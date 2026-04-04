@@ -38,6 +38,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }.execute(this);
 
+        startQuizButton.setOnClickListener(v -> {
+            if (dbReady) {
+                StartQuiz();
+            }
+        });
+
         viewResultsButton.setOnClickListener(v -> viewResults());
 
 
