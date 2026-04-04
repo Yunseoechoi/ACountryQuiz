@@ -9,24 +9,23 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class startQuiz extends AppCompatActivity {
-    final String TAG = "Quiz Activity";
-    private static final int NUM_QUESTIONS = 6;
     private CountriesData countriesData;
     private Quiz quiz;
-    private int currentIndex = 0;
+    private ViewPager2 viewPager;
 
 
     // testing it out
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz);
+        setContentView(R.layout.activity_quiz_pager);
 
         countriesData = new CountriesData(this);
         countriesData.open();
@@ -36,57 +35,39 @@ public class startQuiz extends AppCompatActivity {
 
         countriesData.close();
 
-        displayQuestion();
-        RadioGroup rg = findViewById(R.id.radioGroup);
-        rg.clearCheck();
+        viewPager = findViewById(R.id.viewPager);
 
-        View view = findViewById(android.R.id.content);
+        if (savedInstanceState != null) {
+            int index = savedInstanceState.getInt("currentIndex");
+            int score = savedInstanceState.getInt("score");
 
-        view.setOnTouchListener(new OnSwipeTouchListener(this) {
-            public void onSwipeLeft() {
-                saveAnswer();
-                currentIndex++;
+            quiz.setCurrentScore(score);
 
-                if (currentIndex < quiz.getNumberOfQuestions()) {
-                    displayQuestion();
-                } else {
+            viewPager.setCurrentItem(index);
+        }
+
+        QuizPagerAdapter adapter = new QuizPagerAdapter(this, quiz);
+        viewPager.setAdapter(adapter);
+
+        // detect last swipe
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                if (position == quiz.getNumberOfQuestions() - 1) {
+                    calculateScore();
                     goToResults();
                 }
             }
         });
     }
 
-    // display questions
-    private void displayQuestion() {
-        Question q = quiz.getQuestions().get(currentIndex);
-
-        TextView question = findViewById(R.id.textView4);
-        RadioButton c1 = findViewById(R.id.radioButton);
-        RadioButton c2 = findViewById(R.id.radioButton2);
-        RadioButton c3 = findViewById(R.id.radioButton3);
-
-        question.setText("What is the capital of " + q.getCountryName() + "?");
-
-        c1.setText(q.getAnswerChoice(0));
-        c2.setText(q.getAnswerChoice(1));
-        c3.setText(q.getAnswerChoice(2));
-    }
-    // save answers
-    private void saveAnswer() {
-        RadioGroup rg = findViewById(R.id.radioGroup);
-        int selectedId = rg.getCheckedRadioButtonId();
-
-        if (selectedId != -1) {
-            RadioButton selected = findViewById(selectedId);
-            String answer = selected.getText().toString();
-
-            Question q = quiz.getQuestions().get(currentIndex);
-            q.setUserAnswer(answer);
-
-            if (q.isAnswerCorrect()) {
-                quiz.setCurrentScore(quiz.getCurrentScore() + 1);
-            }
+    private void calculateScore() {
+        int score = 0;
+        for (Question q : quiz.getQuestions()) {
+            if (q.isAnswerCorrect())
+                score++;
         }
+        quiz.setCurrentScore(score);
     }
 
     // go to results
@@ -142,5 +123,14 @@ public class startQuiz extends AppCompatActivity {
         }
 
         return  wrongCapitals;
+    }
+
+    // save state
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("currentIndex", viewPager.getCurrentItem());
+        outState.putInt("score", quiz.getCurrentScore());
     }
 }

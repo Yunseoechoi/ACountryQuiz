@@ -77,6 +77,7 @@ public class ResultsActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(List<Quiz> quizzes) {
                 layout.removeAllViews(); // clear previous entries
+                // emily tip -> if (layout != null && layout.getContext() != null)
                 for (Quiz q : quizzes) {
                     TextView tv = new TextView(context);
                     tv.setText("Date: " + q.getQuizDate() + " | Score: " + q.getCurrentScore() + "/" + q.getNumberOfQuestions());
