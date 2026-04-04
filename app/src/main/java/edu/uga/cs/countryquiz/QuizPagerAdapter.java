@@ -19,7 +19,6 @@ public class QuizPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         QuestionFragment fragment = QuestionFragment.newInstance(position);
-        fragment.setQuiz(quiz);
         return fragment;
     }
 
