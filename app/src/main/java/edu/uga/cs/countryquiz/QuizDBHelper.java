@@ -1,10 +1,18 @@
 package edu.uga.cs.countryquiz;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a SQLiteOpenHelper class, which Android uses to create, upgrade, delete an SQLite database
@@ -55,7 +63,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
                     + QUIZZES_COLUMN_SCORE + " INTEGER NOT NULL"
                     + ")";
 
-    // Note that the constructor is private!
+    // Note that the constructor is private
     // So, it can be called only from
     // this class, in the getInstance method.
     private QuizDBHelper( Context context ) {
@@ -99,5 +107,38 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         int count = cursor.getInt(0);
         cursor.close();
         return count == 0;
+    }
+
+    // save the quiz and info
+    public void saveQuiz(Quiz quiz) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues quizValues = new ContentValues();
+        quizValues.put(QUIZZES_COLUMN_DATE, String.valueOf(quiz.getQuizDate().getTime()));
+        quizValues.put(QUIZZES_COLUMN_SCORE, quiz.getCurrentScore());
+
+        long quizId = db.insert(TABLE_QUIZZES, null, quizValues);
+        quiz.setQuizId(quizId);
+    }
+
+    // grab all the past data
+    public List<Quiz> getAllQuizzes() {
+        List<Quiz> quizzes = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT _id, date, score FROM " + TABLE_QUIZZES + " ORDER BY date DESC", null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                long id = cursor.getLong(0);
+                Date date = new Date(cursor.getLong(1));
+                int score = cursor.getInt(2);
+
+                Quiz quiz = new Quiz(id, date);
+                quiz.setCurrentScore(score);
+                quizzes.add(quiz);
+            }
+            cursor.close();
+        }
+        return quizzes;
     }
 }

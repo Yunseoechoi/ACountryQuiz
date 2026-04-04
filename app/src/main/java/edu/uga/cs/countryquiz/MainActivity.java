@@ -14,6 +14,9 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
 
     final String TAG = "Main Activity";
+    private Button startQuizButton;
+    private Button viewResultsButton;
+    private boolean dbReady = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,31 +24,38 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Log.d(TAG, "MainActivity Created");
+        startQuizButton = findViewById(R.id.button);
+        viewResultsButton = findViewById(R.id.button2);
 
-        initalizeDatabase();
+        startQuizButton.setEnabled(false);
+        new DatabaseStart() {
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                dbReady = true;
+                startQuizButton.setEnabled(true); // enable after DB ready--please work
+                Log.d(TAG, "Database ready");
+            }
+        }.execute(this);
 
-        Button startQuizButton = findViewById(R.id.button);
-        Button viewResultsButton = findViewById(R.id.button2);
+        startQuizButton.setOnClickListener(v -> {
+            if (dbReady) {
+                StartQuiz();
+            }
+        });
 
-        startQuizButton.setOnClickListener(v -> startQuiz());
         viewResultsButton.setOnClickListener(v -> viewResults());
     }
 
-    private void initalizeDatabase() {
-        Log.d(TAG, "Initializing database");
-
-        new DatabaseStart().execute(this);
-    }
-
-    private void startQuiz() {
+    private void StartQuiz() {
         Log.d(TAG, "Start button clicked");
-        Intent intent = new Intent(MainActivity.this, startQuiz.class);
+        Intent intent = new Intent(MainActivity.this, StartQuiz.class);
+        startActivity(intent);
+
+    }
+    private void viewResults() {
+        Intent intent = new Intent(MainActivity.this, PastResultsActivity.class);
         startActivity(intent);
     }
 
-    private void viewResults() {
-        Log.d(TAG, "View results button clicked");
-        Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
-        startActivity(intent);
-    }
 }

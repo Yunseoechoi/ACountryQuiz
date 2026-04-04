@@ -6,7 +6,7 @@ package edu.uga.cs.countryquiz;
  * The id is -1 if the object has not been persisted in the database yet, and
  * the db table's primary key value, if it has been persisted.
  */
-public class Country {
+public class Country{
     private long   id;
     private String name;
     private String capital;
