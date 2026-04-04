@@ -45,22 +45,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         viewResultsButton.setOnClickListener(v -> viewResults());
-
-
-        initializeDatabase();
-    }
-
-    private void initializeDatabase() {
-        Log.d(TAG, "Initializing database");
-        new DatabaseStart() {
-            @Override
-            protected void onPostExecute(Void result) {
-                super.onPostExecute(result);
-                dbReady = true;  // now database is ready
-                Log.d(TAG, "Database ready");
-            }
-        }.execute(this);
-
     }
 
     private void StartQuiz() {
